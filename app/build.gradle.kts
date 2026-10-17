@@ -48,6 +48,14 @@ android {
     testOptions { unitTests.isReturnDefaultValues = true }
 
     signingConfigs {
+        providers.gradleProperty("lawniconsTestKeystore").orNull?.let { path ->
+            create("lawniconsTest") {
+                storeFile = rootProject.file(path)
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
         create("release") {
             uploadKey?.let {
                 storeFile = rootProject.file(it.getProperty("storeFile"))
@@ -63,6 +71,9 @@ android {
             if (providers.gradleProperty("lawniconsTest").isPresent) {
                 applicationIdSuffix = ".lawnicons.test"
                 versionNameSuffix = "-lawnicons-test"
+                if (providers.gradleProperty("lawniconsTestKeystore").isPresent) {
+                    signingConfig = signingConfigs.getByName("lawniconsTest")
+                }
                 manifestPlaceholders["launcherLabel"] = "Omalauncher Lawnicons Test"
             }
         }

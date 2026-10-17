@@ -38,7 +38,13 @@ jobs:
       - name: Build Linux runtime
         run: ./scripts/fetch-proot.sh
       - name: Test, lint and build isolated APK
-        run: ./gradlew -PlawniconsTest :owl:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+        run: ./gradlew -PlawniconsTest -PlawniconsTestKeystore="$HOME/.android/debug.keystore" :owl:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+      - name: Verify persistent APK signer
+        run: |
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          expected=$(keytool -exportcert -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey | sha256sum | cut -d' ' -f1)
+          "$apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk > "$RUNNER_TEMP/apk-signature.txt"
+          grep -Fq "Signer #1 certificate SHA-256 digest: $expected" "$RUNNER_TEMP/apk-signature.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: omalauncher-lawnicons-test
