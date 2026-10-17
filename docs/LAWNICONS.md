@@ -97,3 +97,14 @@ an ephemeral key; its first upgrade may require removing **only Omalauncher
 Lawnicons Test**, which resets that test app's data. Leave the original Omalauncher
 installed and its data intact. Subsequent builds using the stable key can update
 the test app normally. Test versionCode is 16; the original package stays at 15.
+
+Manual-picker build verified: [Actions run 39019114316](https://github.com/tigertrails/omalauncher/actions/runs/39019114316),
+source commit `82c60c4`. All 232 tests passed (126 app, 106 owl); lint reported
+0 errors, 55 warnings and 3 hints. The workflow explicitly signs the test APK with
+the persistent key, then checks its certificate digest before uploading. Local
+verification also confirmed the same signer, isolated package ID, versionCode 16
+and all arm64 runtime libraries. Local APK:
+`/root/Downloads/omalauncher-lawnicons-picker-test.apk`.
+[Download ZIP](https://github.com/tigertrails/omalauncher/actions/runs/39019114316/artifacts/12095997692).
+SHA-256: `7d22626534d326ecfe460486a08465ead66b5306d33d27dcff32e5046ece1292`.
+The new picker interaction still needs an on-device check.
