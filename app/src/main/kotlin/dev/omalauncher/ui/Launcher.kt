@@ -63,6 +63,7 @@ fun LauncherRoot(
     state: LauncherState,
 ) {
     state.bindScope()
+    LawniconPicker(runtime)
     val ready = runtime.launcherReady
     // With our live wallpaper active the window is transparent and Android draws the wallpaper behind it.
     val showOwnBackground = !ready || !runtime.themes.liveWallpaperActive
@@ -152,6 +153,9 @@ private fun DesktopScreen(
                     runtime.androidApps.openInfo(app)
                 },
                 uninstall = { app -> runtime.androidApps.uninstall(app) },
+                chooseLawnicon = runtime.androidApps::chooseLawnicon,
+                resetLawnicon = { app -> runtime.androidApps.setLawnicon(app.key, null) },
+                hasLawniconOverride = { app -> runtime.androidApps.hasLawniconOverride(app.key) },
                 // Off home too: its tile would only be a name that opens nothing.
                 remove = { shortcut ->
                     runtime.androidApps.remove(shortcut)

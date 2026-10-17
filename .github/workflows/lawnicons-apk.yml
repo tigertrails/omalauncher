@@ -27,6 +27,14 @@ jobs:
           ndk=$(sed -n 's/^NDK_VERSION=//p' scripts/fetch-proot.sh)
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37.0" "ndk;$ndk" "cmake;3.22.1" </dev/null >/dev/null
+      - name: Restore stable test signing key
+        env:
+          TEST_KEYSTORE: ${{ secrets.LAWNICONS_TEST_KEYSTORE }}
+        run: |
+          test -n "$TEST_KEYSTORE"
+          mkdir -p "$HOME/.android"
+          printf '%s' "$TEST_KEYSTORE" | base64 --decode > "$HOME/.android/debug.keystore"
+          chmod 600 "$HOME/.android/debug.keystore"
       - name: Build Linux runtime
         run: ./scripts/fetch-proot.sh
       - name: Test, lint and build isolated APK

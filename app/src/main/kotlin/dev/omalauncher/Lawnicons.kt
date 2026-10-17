@@ -14,9 +14,12 @@ internal class Lawnicons private constructor(
     private val resources: Resources,
     private val mappings: LawniconMappings,
 ) {
-    fun icon(component: ComponentName, tint: Int): Drawable? =
+    fun icon(component: ComponentName, tint: Int, assigned: String? = null): Drawable? =
+        assigned?.let { drawable(it, tint) }
+            ?: mappings.drawable(component.packageName, component.className)?.let { drawable(it, tint) }
+
+    private fun drawable(name: String, tint: Int): Drawable? =
         runCatching {
-            val name = mappings.drawable(component.packageName, component.className) ?: return@runCatching null
             val foreground = resources.getIdentifier(name + "_foreground", "drawable", PACKAGE)
             val id = if (foreground != 0) foreground else resources.getIdentifier(name, "drawable", PACKAGE)
             if (id == 0) return@runCatching null
@@ -29,7 +32,7 @@ internal class Lawnicons private constructor(
                 drawable
             }
             layer.mutate().apply { setTint(tint) }
-        }.onFailure { Log.w("lawnicons", "cannot load $component", it) }.getOrNull()
+        }.onFailure { Log.w("lawnicons", "cannot load $name", it) }.getOrNull()
 
     companion object {
         const val PACKAGE = "app.lawnchair.lawnicons"

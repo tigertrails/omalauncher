@@ -276,6 +276,16 @@ fun HomeScreen(
                     }
                     EditBar {
                         if (item is WidgetItem) EditAction("edit") { edit(item) }
+                        if (app != null) {
+                            EditAction("Lawnicon") {
+                                state.editing = null
+                                runtime.androidApps.chooseLawnicon(app)
+                            }
+                            if (runtime.androidApps.hasLawniconOverride(app.key)) EditAction("reset icon") {
+                                state.editing = null
+                                runtime.androidApps.setLawnicon(app.key, null)
+                            }
+                        }
                         // As a QR code or link, or (your own) to the store. An agent's tile is a terminal, not a widget to pass on.
                         if (item is WidgetItem && !engine.isAgentWidget(item.spec)) {
                             EditAction("share") {

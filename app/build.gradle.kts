@@ -22,7 +22,7 @@ android {
         manifestPlaceholders["launcherLabel"] = "Omalauncher"
         minSdk = 29
         targetSdk = 37
-        versionCode = 15
+        versionCode = if (providers.gradleProperty("lawniconsTest").isPresent) 16 else 15
         versionName = "0.8.0"
         ndk { abiFilters += "arm64-v8a" }
     }

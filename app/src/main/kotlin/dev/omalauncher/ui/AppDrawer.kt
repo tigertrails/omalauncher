@@ -227,6 +227,9 @@ internal class AppHandlers(
     val pin: (AppHit) -> Unit,
     val info: (AndroidApp) -> Unit,
     val uninstall: (AndroidApp) -> Unit,
+    val chooseLawnicon: (AndroidApp) -> Unit,
+    val resetLawnicon: (AndroidApp) -> Unit,
+    val hasLawniconOverride: (AndroidApp) -> Boolean,
     val remove: (AndroidShortcut) -> Unit,
     /** An Android app's shortcuts, for its long-press menu. */
     val shortcuts: (AndroidApp) -> ShortcutMenu,
@@ -255,6 +258,8 @@ private fun AppHit.actions(handlers: AppHandlers): List<Pair<String, () -> Unit>
         is AppHit.Android ->
             listOfNotNull(
                 "add to home" to { handlers.pin(this) },
+                "choose Lawnicon" to { handlers.chooseLawnicon(app) },
+                if (handlers.hasLawniconOverride(app)) "reset Lawnicon" to { handlers.resetLawnicon(app) } else null,
                 "app info" to { handlers.info(app) },
                 if (app.system) null else "uninstall" to { handlers.uninstall(app) },
             )

@@ -75,3 +75,25 @@ private launcher and Linux data. This branch does not perform any installation.
 - Test APK saved to `/root/Downloads/omalauncher-lawnicons-test.apk`.
   [GitHub artifact](https://github.com/tigertrails/omalauncher/actions/runs/39016171536/artifacts/12094753023)
   contains the same APK (inside a ZIP). On-device rendering still needs a manual test.
+
+## Manual assignments
+
+Long-press an Android app in the drawer, search results or recents and choose
+**choose Lawnicon**. On home, long-press its tile and tap **Lawnicon**. This opens
+Lawnicons' own searchable picker, including its generic icons. Selecting an icon
+enables Lawnicons and saves the resource name for that app/activity and Android
+profile. The existing app icon changes on every surface and still follows the
+current theme accent. Cancel leaves the previous icon unchanged. **reset Lawnicon**
+in the drawer menu (or **reset icon** on home) restores automatic pack mapping,
+then the original icon if unmapped. Turning the global toggle off keeps assignments
+saved for next time. If an assigned resource disappears in a pack update, automatic
+mapping and original-icon fallback still work. Nothing creates a new app entry.
+
+Test APK builds now restore one stable debug signing key from this fork's
+`LAWNICONS_TEST_KEYSTORE` Actions secret. Forks running this workflow must supply
+their own debug keystore (JKS, alias `androiddebugkey`, password `android`) as this
+base64-encoded secret. Do not commit the private key. The initial test build used
+an ephemeral key; its first upgrade may require removing **only Omalauncher
+Lawnicons Test**, which resets that test app's data. Leave the original Omalauncher
+installed and its data intact. Subsequent builds using the stable key can update
+the test app normally. Test versionCode is 16; the original package stays at 15.

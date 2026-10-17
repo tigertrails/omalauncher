@@ -221,6 +221,26 @@ class AndroidAppCatalog(
     private var loading: Job? = null
     private var lawniconsEnabled = false
     private var lawniconsTint = Color.WHITE
+    private val lawniconPrefs = LauncherData.prefs(context)
+    private val lawniconOverrides = mutableStateMapOf<String, String>().apply {
+        putAll(LawniconOverrides.read(lawniconPrefs.getString("lawnicons.overrides", null)))
+    }
+
+    var lawniconPickerTarget by mutableStateOf<String?>(null)
+
+    fun chooseLawnicon(app: AndroidApp) {
+        lawniconPickerTarget = app.key
+    }
+
+    fun hasLawniconOverride(key: String) = key in lawniconOverrides
+
+    /** Main thread; scoped to the activity and profile, just like the existing icon key. */
+    fun setLawnicon(key: String, name: String?) {
+        if (name != null && !LawniconOverrides.validName(name)) return
+        if (name == null) lawniconOverrides.remove(key) else lawniconOverrides[key] = name
+        lawniconPrefs.edit().putString("lawnicons.overrides", LawniconOverrides.write(lawniconOverrides.toMap())).apply()
+        reload(evict = key.substringBefore('/'))
+    }
 
     /** Main thread; the shared maps update every existing icon surface together. */
     fun configureLawnicons(enabled: Boolean, tint: Int) {
@@ -511,6 +531,7 @@ class AndroidAppCatalog(
                 }
                 val pack = if (lawniconsEnabled) withContext(Dispatchers.IO) { Lawnicons.load(context) } else null
                 val tint = lawniconsTint
+                val overrides = lawniconOverrides.toMap()
                 var paused = emptySet<Long>()
                 var clones = emptySet<Long>()
                 var works = emptySet<Long>()
@@ -561,7 +582,7 @@ class AndroidAppCatalog(
                 icons.keys.retainAll(present)
                 masks.keys.retainAll(present)
                 for ((info, app) in infos) {
-                    if (app.key !in icons) loadIcon(app.key, app.profile, app.clone, themed = { pack?.icon(app.component, tint) }) { info.getIcon(0) }
+                    if (app.key !in icons) loadIcon(app.key, app.profile, app.clone, themed = { pack?.icon(app.component, tint, overrides[app.key]) }) { info.getIcon(0) }
                 }
                 // Apps change a shortcut's icon without an update, so these are drawn again each time; there are only a few.
                 for ((info, shortcut) in made) {
