@@ -19,6 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.omalauncher"
+        manifestPlaceholders["launcherLabel"] = "Omalauncher"
         minSdk = 29
         targetSdk = 37
         versionCode = 15
@@ -55,6 +56,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (providers.gradleProperty("lawniconsTest").isPresent) {
+                applicationIdSuffix = ".lawnicons.test"
+                versionNameSuffix = "-lawnicons-test"
+                manifestPlaceholders["launcherLabel"] = "Omalauncher Lawnicons Test"
+            }
+        }
         release {
             // Shrinks the APK and drops what the app doesn't use, like the owl module's unused parts.
             isMinifyEnabled = true
@@ -87,6 +95,7 @@ dependencies {
     implementation(libs.zxing.core)
     implementation(project(":owl"))
     testImplementation(libs.junit)
+    testImplementation(libs.kxml)
     // android.jar only has stubs of org.json.
     testImplementation(libs.org.json)
 }

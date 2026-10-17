@@ -103,6 +103,7 @@ fun StyleScreen(
             // Style choices don't depend on a theme, so they're offered before themes are downloaded too.
             Heading("home screen")
             val style = runtime.style
+            Flag("Lawnicons", "enabled", "disabled", style, Style.LAWNICONS)
             Flag("icons", "monochrome", "colored", style, Style.MONOCHROME_ICONS)
             Flag("home apps", "boxed", "icon only", style, Style.APP_TILES)
             Flag("recent apps", "shown", "hidden", style, Style.RECENT_APPS)

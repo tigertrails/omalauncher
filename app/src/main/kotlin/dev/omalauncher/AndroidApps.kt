@@ -219,6 +219,16 @@ class AndroidAppCatalog(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val iconDispatcher = Dispatchers.IO.limitedParallelism(4)
     private var loading: Job? = null
+    private var lawniconsEnabled = false
+    private var lawniconsTint = Color.WHITE
+
+    /** Main thread; the shared maps update every existing icon surface together. */
+    fun configureLawnicons(enabled: Boolean, tint: Int) {
+        if (enabled == lawniconsEnabled && (!enabled || tint == lawniconsTint)) return
+        lawniconsEnabled = enabled
+        lawniconsTint = tint
+        reload(redraw = true)
+    }
 
     /** Whether the last load could list [shortcuts]: only while this is the default home app. Long-press menus offer app shortcuts only then too. */
     var listsShortcuts by mutableStateOf(false)
@@ -230,16 +240,16 @@ class AndroidAppCatalog(
     fun start() {
         launcherApps.registerCallback(
             object : LauncherApps.Callback() {
-                override fun onPackageAdded(packageName: String, user: UserHandle) = reload()
+                override fun onPackageAdded(packageName: String, user: UserHandle) = reload(evict = packageName)
 
-                override fun onPackageRemoved(packageName: String, user: UserHandle) = reload()
+                override fun onPackageRemoved(packageName: String, user: UserHandle) = reload(evict = packageName)
 
                 // Updates can change the icon, so drop the cached one.
                 override fun onPackageChanged(packageName: String, user: UserHandle) = reload(evict = packageName)
 
-                override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = reload()
+                override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = reload(evict = Lawnicons.PACKAGE.takeIf { it in packageNames })
 
-                override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = reload()
+                override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = reload(evict = Lawnicons.PACKAGE.takeIf { it in packageNames })
 
                 // Apps change their other shortcuts (a chat app's recent chats) often; only pinned ones are listed.
                 override fun onShortcutsChanged(
@@ -487,15 +497,20 @@ class AndroidAppCatalog(
         }.onFailure { Log.w(TAG, "cannot uninstall ${app.component}", it) }
     }
 
-    private fun reload(evict: String? = null) {
+    private fun reload(evict: String? = null, redraw: Boolean = false) {
         loading?.cancel()
         loading =
             scope.launch {
-                if (evict != null) {
+                if (redraw || evict == Lawnicons.PACKAGE) {
+                    icons.clear()
+                    masks.clear()
+                } else if (evict != null) {
                     // In every profile: an update in one doesn't say which, and reloading an icon is cheap.
                     icons.keys.removeAll { it.startsWith("$evict/") }
                     masks.keys.removeAll { it.startsWith("$evict/") }
                 }
+                val pack = if (lawniconsEnabled) withContext(Dispatchers.IO) { Lawnicons.load(context) } else null
+                val tint = lawniconsTint
                 var paused = emptySet<Long>()
                 var clones = emptySet<Long>()
                 var works = emptySet<Long>()
@@ -546,7 +561,7 @@ class AndroidAppCatalog(
                 icons.keys.retainAll(present)
                 masks.keys.retainAll(present)
                 for ((info, app) in infos) {
-                    if (app.key !in icons) loadIcon(app.key, app.profile, app.clone) { info.getIcon(0) }
+                    if (app.key !in icons) loadIcon(app.key, app.profile, app.clone, themed = { pack?.icon(app.component, tint) }) { info.getIcon(0) }
                 }
                 // Apps change a shortcut's icon without an update, so these are drawn again each time; there are only a few.
                 for ((info, shortcut) in made) {
@@ -604,9 +619,13 @@ class AndroidAppCatalog(
         key: String,
         profile: Long?,
         clone: Boolean,
+        themed: () -> Drawable? = { null },
         drawable: () -> Drawable?,
     ) = launch {
-        val rendered = withContext(iconDispatcher) { runCatching { drawable()?.let { render(it, profile, clone) } }.getOrNull() }
+        val rendered = withContext(iconDispatcher) {
+            runCatching { themed()?.let { render(it, profile, clone, themed = true) } }.getOrNull()
+                ?: runCatching { drawable()?.let { render(it, profile, clone) } }.getOrNull()
+        }
         if (rendered != null) {
             icons[key] = rendered.first
             masks[key] = rendered.second
@@ -618,11 +637,12 @@ class AndroidAppCatalog(
         d: Drawable,
         profile: Long?,
         clone: Boolean,
+        themed: Boolean = false,
     ): Pair<ImageBitmap, ImageBitmap> {
         val bmp = Bitmap.createBitmap(iconPx, iconPx, Bitmap.Config.ARGB_8888)
         d.setBounds(0, 0, iconPx, iconPx)
         d.draw(Canvas(bmp))
-        var mask = iconMask(d, iconPx)
+        var mask = if (themed) bmp.extractAlpha() else iconMask(d, iconPx)
         if (profile != null) mask = addBadge(bmp, mask, if (clone) cloneMark else briefcase)
         return bmp.asImageBitmap() to mask.asImageBitmap()
     }

@@ -147,6 +147,11 @@ class Runtime(
             snapshotFlow { style.style[Style.TERMINAL_FONT] to style.style[Style.TERMINAL_TEXT] }.drop(1).collect { terminalFont.write() }
         }
         androidApps.start()
+        scope.launch {
+            snapshotFlow { style.style[Style.LAWNICONS] to Palette.accent.toArgb() }.collect { (enabled, tint) ->
+                androidApps.configureLawnicons(enabled, tint)
+            }
+        }
         // Omarchy's Super bindings inside Linux windows; the home screen handles its own (see MainActivity).
         keyboard.onShortcut = { code ->
             when (code) {
