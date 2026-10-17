@@ -66,5 +66,12 @@ private launcher and Linux data. This branch does not perform any installation.
 - Six mapping tests passed using Kotlin 2.4.20 and JUnit 4.13.2 on an isolated JDK 25.
 - `Lawnicons.kt` and `LawniconMappings.kt` compiled against Android API 37.0.
 - The new workflow passed actionlint 1.7.12; `git diff --check` passed.
-- Full Gradle tests, Android lint, APK assembly and on-device rendering have not
-  run. GitHub authentication and a destination fork are needed to run the APK job.
+- [GitHub Actions run 39016171536](https://github.com/tigertrails/omalauncher/actions/runs/39016171536)
+  built commit `5ab556a`: 121 app tests and 106 owl tests passed, none skipped;
+  Android lint completed with 0 errors (54 warnings and 3 hints); APK assembly passed.
+- Downloaded APK: signature verified (v2), isolated package ID and task affinities
+  verified, and all arm64 native runtime libraries present. SHA-256:
+  `e0f5ab852bc51d011c00b4500cf582226c8f41c02eb3229b7adfdbb3e8eaa41a`.
+- Test APK saved to `/root/Downloads/omalauncher-lawnicons-test.apk`.
+  [GitHub artifact](https://github.com/tigertrails/omalauncher/actions/runs/39016171536/artifacts/12094753023)
+  contains the same APK (inside a ZIP). On-device rendering still needs a manual test.
