@@ -5,7 +5,7 @@ import org.json.JSONObject
 
 /** Persist resource names, never resource IDs or bitmaps: pack updates may renumber resources. */
 internal object LawniconOverrides {
-    private val name = Regex("[a-z][a-z0-9_]*")
+    private val name = Regex("[a-z_][a-z0-9_]*")
 
     fun validName(value: String) = name.matches(value)
 

@@ -7,6 +7,9 @@ import org.junit.Test
 
 class LawniconOverridesTest {
     @Test fun acceptsPackDrawableReferencesInsteadOfBakedBitmaps() {
+        assertEquals("_1111_foreground", LawniconOverrides.resourceName(
+            "app.lawnchair.lawnicons", "app.lawnchair.lawnicons:drawable/_1111_foreground",
+        ))
         assertEquals("folder_foreground", LawniconOverrides.resourceName(
             "app.lawnchair.lawnicons", "app.lawnchair.lawnicons:drawable/folder_foreground",
         ))
