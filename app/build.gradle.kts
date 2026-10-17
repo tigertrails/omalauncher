@@ -28,7 +28,7 @@ android {
     }
 
     // Keep release metadata literal for the existing release workflow.
-    if (providers.gradleProperty("lawniconsTest").isPresent) defaultConfig.versionCode = 16
+    if (providers.gradleProperty("lawniconsTest").isPresent) defaultConfig.versionCode = 17
 
     buildFeatures { buildConfig = true }
 
@@ -70,11 +70,11 @@ android {
         debug {
             if (providers.gradleProperty("lawniconsTest").isPresent) {
                 applicationIdSuffix = ".lawnicons.test"
-                versionNameSuffix = "-lawnicons-test"
+                versionNameSuffix = "-lawnicons-preview.1"
                 if (providers.gradleProperty("lawniconsTestKeystore").isPresent) {
                     signingConfig = signingConfigs.getByName("lawniconsTest")
                 }
-                manifestPlaceholders["launcherLabel"] = "Omalauncher Lawnicons Test"
+                manifestPlaceholders["launcherLabel"] = "Omalauncher Lawnicons"
             }
         }
         release {

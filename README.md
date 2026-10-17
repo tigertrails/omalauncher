@@ -1,4 +1,17 @@
-# Omalauncher
+# Omalauncher Lawnicons
+
+This fork adds native [Lawnicons](https://github.com/LawnchairLauncher/lawnicons)
+throughout Omalauncher, with automatic theme tint, original-icon fallback, manual
+icon assignment and a global toggle. No additional widgets or shortcuts.
+
+[Download the public preview](https://github.com/tigertrails/omalauncher/releases/tag/lawnicons-preview-1)
+· [Setup and implementation](docs/LAWNICONS.md)
+· [Original Omalauncher](https://github.com/SimonSchubert/omalauncher)
+
+The preview installs alongside the original launcher. Linux is optional and is
+not needed for Lawnicons. Updates from the latest signed Lawnicons test build
+preserve its data; the preview keeps the same package identity and signing key.
+The Play Store link below is for the original Omalauncher.
 
 An Android home screen with the look of [Omarchy](https://omarchy.org), and an
 optional Arch Linux ARM system next to your phone apps. Omalauncher runs the

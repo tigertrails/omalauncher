@@ -1,4 +1,4 @@
-name: Lawnicons test APK
+name: Lawnicons preview APK
 
 on:
   workflow_dispatch:
@@ -50,7 +50,7 @@ jobs:
           grep -Fiq "$expected" "$RUNNER_TEMP/apk-signature.txt"
       - uses: actions/upload-artifact@v4
         with:
-          name: omalauncher-lawnicons-test
+          name: omalauncher-lawnicons-preview
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
       - uses: actions/upload-artifact@v4

@@ -32,19 +32,19 @@ Branch: `feature/native-lawnicons`.
 Requires JDK 25 for Gradle, JDK 17 for the owl toolchain, Android SDK 37 and the
 NDK pinned by scripts/fetch-proot.sh. Android native build tools need a supported
 host (the phone's ARM64 Linux environment is not an official Android NDK host).
-The **Lawnicons test APK** GitHub Actions workflow installs build tools, builds
+The **Lawnicons preview APK** GitHub Actions workflow installs build tools, builds
 proot, runs tests and lint, and uploads the debug APK plus reports. Push this branch
-to your fork or run the workflow manually. Download `omalauncher-lawnicons-test`
+to your fork or run the workflow manually. Download `omalauncher-lawnicons-preview`
 from that run's artifacts and extract the APK.
 
 ## Install safely
 
 The `-PlawniconsTest` build has application ID
-`dev.omalauncher.lawnicons.test` and label **Omalauncher Lawnicons Test**. It installs
+`dev.omalauncher.lawnicons.test` and label **Omalauncher Lawnicons**. It installs
 alongside the existing launcher with separate app storage and task affinities.
 It does not reuse the original configuration or Linux/Codex environment. Leave the
 original app installed, do not clear its storage, and do not remove Linux from it.
-Start the test app directly before considering it as the default Home app. Choose
+Start Omalauncher Lawnicons directly before considering it as the default Home app. Choose
 **without Linux** during test setup: icon testing does not require a second rootfs.
 Install Lawnicons, enable its toggle in the test launcher, and pin a few existing
 apps normally to exercise the home layout. No automatic duplicate entries are made.
@@ -96,7 +96,7 @@ base64-encoded secret. Do not commit the private key. The initial test build use
 an ephemeral key; its first upgrade may require removing **only Omalauncher
 Lawnicons Test**, which resets that test app's data. Leave the original Omalauncher
 installed and its data intact. Subsequent builds using the stable key can update
-the test app normally. Test versionCode is 16; the original package stays at 15.
+the test app normally. The public preview uses versionCode 17; the original package stays at 15.
 
 Manual-picker build verified: [Actions run 39019114316](https://github.com/tigertrails/omalauncher/actions/runs/39019114316),
 source commit `82c60c4`. All 232 tests passed (126 app, 106 owl); lint reported
@@ -107,4 +107,15 @@ and all arm64 runtime libraries. Local APK:
 `/root/Downloads/omalauncher-lawnicons-picker-test.apk`.
 [Download ZIP](https://github.com/tigertrails/omalauncher/actions/runs/39019114316/artifacts/12095997692).
 SHA-256: `7d22626534d326ecfe460486a08465ead66b5306d33d27dcff32e5046ece1292`.
-The new picker interaction still needs an on-device check.
+The user confirmed the new picker successfully changed an app icon on device.
+
+## Public preview
+
+The app is now named **Omalauncher Lawnicons**, version `0.8.0-lawnicons-preview.1`
+(versionCode 17). It retains package `dev.omalauncher.lawnicons.test` and the same
+persistent signing key as the verified manual-picker build, so existing users of
+that build can install the preview as an update without uninstalling or resetting
+their data. The package suffix and build flags are retained for compatibility;
+they are not the app's displayed name. This is a debug-signed preview build.
+Linux remains optional; it is not required for icons. Existing Linux/Codex data
+in the original Omalauncher is separate and is not migrated by this preview.
